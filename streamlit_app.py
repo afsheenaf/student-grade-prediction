@@ -1,9 +1,35 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import base64
+
+def add_background(image_file):
+
+    with open(image_file, "rb") as file:
+        encoded = base64.b64encode(file.read()).decode()
+
+    st.markdown(
+        f"""
+        <style>
+
+        .stApp {{
+            background-image: url("data:image/png;base64,{encoded}");
+            background-size: cover;
+            background-position: center;
+        }}
+
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+
 
 model = joblib.load("student_grade_model.pkl")
 feature_names = joblib.load("feature_names.pkl")
+add_background("background.png")
+
+
 
 st.set_page_config(
     page_title="Student Grade Prediction",
@@ -22,17 +48,25 @@ Please complete the information below before clicking **Predict Grade**.
 
 st.divider()
 
-left, right = st.columns(2)
+tab1, tab2, tab3, tab4 = st.tabs(
+    [
+        "👤 Student",
+        "📚 Academic",
+        "👨‍👩‍👧 Family",
+        "🏠 Lifestyle"
+    ]
+)
 
-with left:
+
+with tab1:
 
     st.subheader("👤 Student Information")
 
     age = st.slider(
         "Age",
-        min_value=15,
-        max_value=22,
-        value=17
+        15,
+        22,
+        17
     )
 
     sex = st.selectbox(
@@ -59,11 +93,11 @@ with left:
         ]
     )
 
-    st.divider()
+with tab2:
 
-    st.subheader("📚 Academic Information")
+        st.subheader("📚 Academic Information")
 
-    traveltime = st.selectbox(
+        traveltime = st.selectbox(
         "Travel Time to School",
         [
             "<15 minutes",
@@ -73,7 +107,8 @@ with left:
         ]
     )
 
-    studytime = st.selectbox(
+
+        studytime = st.selectbox(
         "Weekly Study Time",
         [
             "<2 hours",
@@ -83,36 +118,33 @@ with left:
         ]
     )
 
-    failures = st.selectbox(
-        "Past Class Failures",
-        [
+
+        failures = st.selectbox(
+            "Past Class Failures",
+            [0,1,2,3]
+        )
+
+
+        absences = st.slider(
+            "Number of Absences",
             0,
-            1,
-            2,
-            3
-        ]
-    )
+            100,
+            5
+        )
 
-    absences = st.slider(
-        "Number of Absences",
-        0,
-        100,
-        5
-    )
 
-    G2 = st.slider(
-        "Second Period Grade (G2)",
-        0,
-        20,
-        12,
-        help="Enter the student's second-period examination score."
-    )
+        G2 = st.slider(
+            "Second Period Grade (G2)",
+            0,
+            20,
+            12
+        )
 
-with right:
+with tab3:
 
-    st.subheader("👨‍👩‍👧 Family Background")
+        st.subheader("👨‍👩‍👧 Family Background")
 
-    Medu = st.selectbox(
+        Medu = st.selectbox(
         "Mother's Education",
         [
             "None",
@@ -123,7 +155,7 @@ with right:
         ]
     )
 
-    Fedu = st.selectbox(
+        Fedu = st.selectbox(
         "Father's Education",
         [
             "None",
@@ -134,127 +166,121 @@ with right:
         ]
     )
 
-    Mjob = st.selectbox(
-        "Mother's Occupation",
-        [
-            "At Home",
-            "Health Care",
-            "Services",
-            "Teacher",
-            "Other"
-        ]
-    )
+        Mjob = st.selectbox(
+            "Mother's Occupation",
+            [
+                "At Home",
+                "Health Care",
+                "Services",
+                "Teacher",
+                "Other"
+            ]
+        )
 
-    Fjob = st.selectbox(
-        "Father's Occupation",
-        [
-            "At Home",
-            "Health Care",
-            "Services",
-            "Teacher",
-            "Other"
-        ]
-    )
+        Fjob = st.selectbox(
+            "Father's Occupation",
+            [
+                "At Home",
+                "Health Care",
+                "Services",
+                "Teacher",
+                "Other"
+            ]
+        )
 
-    guardian = st.selectbox(
-        "Primary Guardian",
-        [
-            "Mother",
-            "Father",
-            "Other"
-        ]
-    )
+        guardian = st.selectbox(
+            "Primary Guardian",
+            [
+                "Mother",
+                "Father",
+                "Other"
+            ]
+        )
 
-    famsize = st.selectbox(
-        "Family Size",
-        [
-            "3 or fewer",
-            "More than 3"
-        ]
-    )
+        famsize = st.selectbox(
+            "Family Size",
+            [
+                "3 or fewer",
+                "More than 3"
+            ]
+        )
 
-    Pstatus = st.selectbox(
-        "Parents Living Together",
-        [
-            "Yes",
-            "No"
-        ]
-    )
+        Pstatus = st.selectbox(
+            "Parents Living Together",
+            [
+                "Yes",
+                "No"
+            ]
+        )
 
-    famrel = st.selectbox(
-    "Family Relationship Quality",
-    [
-        "Very Poor",
-        "Poor",
-        "Average",
-        "Good",
-        "Excellent"
-    ]
-    )
+        famrel = st.selectbox(
+            "Family Relationship Quality",
+            [
+                "Very Poor",
+                "Poor",
+                "Average",
+                "Good",
+                "Excellent"
+            ]
+        )
+with tab4:
 
-    st.divider()
+        st.subheader("🏠 Lifestyle & Support")
 
-st.subheader("🏠 Lifestyle & Support")
-lifestyle_left, lifestyle_right = st.columns(2)
+        freetime = st.selectbox(
+            "Free Time After School",
+            [
+                "Very Low",
+                "Low",
+                "Average",
+                "High",
+                "Very High"
+            ]
+        )
 
-with lifestyle_left:
+        goout = st.selectbox(
+            "Going Out With Friends",
+            [
+                "Very Low",
+                "Low",
+                "Average",
+                "High",
+                "Very High"
+            ]
+        )
 
-    freetime = st.selectbox(
-        "Free Time After School",
-        [
-            "Very Low",
-            "Low",
-            "Average",
-            "High",
-            "Very High"
-        ]
-    )
+        health = st.selectbox(
+            "Current Health Status",
+            [
+                "Very Poor",
+                "Poor",
+                "Average",
+                "Good",
+                "Excellent"
+            ]
+        )
 
-    goout = st.selectbox(
-        "Going Out With Friends",
-        [
-            "Very Low",
-            "Low",
-            "Average",
-            "High",
-            "Very High"
-        ]
-    )
+        dalc = st.selectbox(
+            "Workday Alcohol Consumption",
+            [
+                "Very Low",
+                "Low",
+                "Average",
+                "High",
+                "Very High"
+            ]
+        )
 
-    health = st.selectbox(
-        "Current Health Status",
-        [
-            "Very Poor",
-            "Poor",
-            "Average",
-            "Good",
-            "Excellent"
-        ]
-    )
-
-    dalc = st.selectbox(
-        "Weekday Alcohol Consumption",
-        [
-            "Very Low",
-            "Low",
-            "Average",
-            "High",
-            "Very High"
-        ]
-    )
-
-    walc = st.selectbox(
-        "Weekend Alcohol Consumption",
-        [
-            "Very Low",
-            "Low",
-            "Average",
-            "High",
-            "Very High"
-        ]
-    )
-
-with lifestyle_right:
+        walc = st.selectbox(
+            "Weekend Alcohol Consumption",
+            [
+                "Very Low",
+                "Low",
+                "Average",
+                "High",
+                "Very High"
+            ]
+        )
 
         reason = st.selectbox(
             "Main Reason for Choosing This School",
@@ -268,51 +294,78 @@ with lifestyle_right:
 
         schoolsup = st.radio(
             "Receives School Support",
-            ["Yes", "No"],
+            [
+                "Yes",
+                "No"
+            ],
             horizontal=True
         )
 
         famsup = st.radio(
             "Receives Family Educational Support",
-            ["Yes", "No"],
+            [
+                "Yes",
+                "No"
+            ],
             horizontal=True
         )
 
         paid = st.radio(
             "Attends Extra Paid Classes",
-            ["Yes", "No"],
+            [
+                "Yes",
+                "No"
+            ],
             horizontal=True
         )
 
         activities = st.radio(
             "Participates in Extra Activities",
-            ["Yes", "No"],
+            [
+                "Yes",
+                "No"
+            ],
             horizontal=True
         )
 
         nursery = st.radio(
             "Attended Nursery School",
-            ["Yes", "No"],
+            [
+                "Yes",
+                "No"
+            ],
             horizontal=True
         )
 
         higher = st.radio(
             "Plans to Pursue Higher Education",
-            ["Yes", "No"],
+            [
+                "Yes",
+                "No"
+            ],
             horizontal=True
         )
 
         internet = st.radio(
             "Internet Access at Home",
-            ["Yes", "No"],
+            [
+                "Yes",
+                "No"
+            ],
             horizontal=True
         )
 
         romantic = st.radio(
             "Currently in a Romantic Relationship",
-            ["Yes", "No"],
+            [
+                "Yes",
+                "No"
+            ],
             horizontal=True
         )
+
+
+
 
 st.divider()
 
@@ -325,9 +378,7 @@ predict = st.button(
 
 if predict:
 
-    # -----------------------------
     # Convert user-friendly inputs
-    # -----------------------------
 
     # Gender
     sex = "M" if sex == "Male" else "F"
@@ -494,7 +545,6 @@ if predict:
         columns=feature_names,
         fill_value=0
     )
-    st.write(input_data)
     prediction = model.predict(input_data)
 
     grade_map = {
