@@ -423,6 +423,16 @@ if predict:
         "Other": "other"
     }
 
+    famrel_map = {
+    "Very Poor": 1,
+    "Poor": 2,
+    "Average": 3,
+    "Good": 4,
+    "Excellent": 5
+    }
+
+    famrel = famrel_map[famrel]
+
     reason = reason_map[reason]
 
     schoolsup = "yes" if schoolsup == "Yes" else "no"
@@ -435,6 +445,104 @@ if predict:
     romantic = "yes" if romantic == "Yes" else "no"
 
     Total_Alcohol = dalc + walc
+
+    input_data = pd.DataFrame({
+
+        "age": [age],
+        "Medu": [Medu],
+        "Fedu": [Fedu],
+        "traveltime": [traveltime],
+        "studytime": [studytime],
+        "failures": [failures],
+        "famrel": [famrel],
+        "freetime": [freetime],
+        "goout": [goout],
+        "health": [health],
+        "absences": [absences],
+        "G2": [G2],
+
+        "school": [school],
+        "sex": [sex],
+        "address": [address],
+        "famsize": [famsize],
+        "Pstatus": [Pstatus],
+
+        "Mjob": [Mjob],
+        "Fjob": [Fjob],
+        "reason": [reason],
+        "guardian": [guardian],
+
+        "schoolsup": [schoolsup],
+        "famsup": [famsup],
+        "paid": [paid],
+        "activities": [activities],
+        "nursery": [nursery],
+        "higher": [higher],
+        "internet": [internet],
+        "romantic": [romantic],
+
+        "Total_Alcohol": [Total_Alcohol]
+
+    })
+
+    input_data = pd.get_dummies(
+        input_data,
+        drop_first=True
+    )  
+
+    input_data = input_data.reindex(
+        columns=feature_names,
+        fill_value=0
+    )
+    st.write(input_data)
+    prediction = model.predict(input_data)
+
+    grade_map = {
+        0: "A",
+        1: "B",
+        2: "C",
+        3: "D"
+    }
+
+    predicted_grade = grade_map[prediction[0]]
+
+
+
+    st.divider()
+
+    st.subheader("📊 Prediction Result")
+
+    if predicted_grade == "A":
+
+        st.success(f"🎉 Predicted Grade: {predicted_grade}")
+
+        st.write(
+            "The student is predicted to achieve excellent academic performance."
+        )
+
+    elif predicted_grade == "B":
+
+        st.info(f"👍 Predicted Grade: {predicted_grade}")
+
+        st.write(
+            "The student is predicted to achieve good academic performance."
+        )
+
+    elif predicted_grade == "C":
+
+        st.warning(f"📚 Predicted Grade: {predicted_grade}")
+
+        st.write(
+            "The student may require additional support to improve performance."
+        )
+
+    else:
+
+        st.error(f"⚠️ Predicted Grade: {predicted_grade}")
+
+        st.write(
+            "The student is predicted to be at academic risk and may require intervention."
+        )
 
 
 
