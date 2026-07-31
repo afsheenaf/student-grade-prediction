@@ -1,3 +1,4 @@
+# Import Required Libraries
 import streamlit as st
 import pandas as pd
 import joblib
@@ -24,12 +25,15 @@ def add_background(image_file):
     )
 
 
+# Load Trained Machine Learning Model
 
 model = joblib.load("student_grade_model.pkl")
 feature_names = joblib.load("feature_names.pkl")
 add_background("background.png")
 
+# Configure Streamlit Page
 
+# Application Title and Description
 
 st.set_page_config(
     page_title="Student Grade Prediction",
@@ -40,12 +44,26 @@ st.set_page_config(
 st.title("🎓 Student Grade Prediction System")
 
 st.markdown("""
-This application predicts a student's final grade category using a trained
-**Logistic Regression** machine learning model.
+This application predicts a student's **final grade category**
+using a trained **Logistic Regression** machine learning model.
 
-Please complete the information below before clicking **Predict Grade**.
+The prediction is intended to help **teachers and school counsellors**
+identify students who may require additional academic support.
 """)
 
+st.info("""
+### 📋 How to Use
+
+1. Complete all student information.
+
+2. Review the academic, family and lifestyle information.
+
+3. Confirm that all information is correct.
+
+4. Click **Predict Grade** to generate the prediction.
+""")
+
+# splitting into tabs
 st.divider()
 
 tab1, tab2, tab3, tab4 = st.tabs(
@@ -57,6 +75,7 @@ tab1, tab2, tab3, tab4 = st.tabs(
     ]
 )
 
+# Student Information Section
 
 with tab1:
 
@@ -92,6 +111,7 @@ with tab1:
             "Rural"
         ]
     )
+# Academic Information Section
 
 with tab2:
 
@@ -127,18 +147,18 @@ with tab2:
 
         absences = st.slider(
             "Number of Absences",
-            0,
-            100,
-            5
+            min_value=0,
+            max_value=32,
+            value=5,
+            help="Maximum value is based on the training dataset."
         )
-
-
         G2 = st.slider(
             "Second Period Grade (G2)",
             0,
             20,
             12
         )
+# Family Background Section
 
 with tab3:
 
@@ -223,6 +243,8 @@ with tab3:
                 "Excellent"
             ]
         )
+ # Lifestyle & Support Section
+       
 with tab4:
 
         st.subheader("🏠 Lifestyle & Support")
@@ -365,20 +387,46 @@ with tab4:
         )
 
 
+# Confirm User Inputs
 
 
 st.divider()
 
-predict = st.button(
-    "🎓 Predict Grade",
-    use_container_width=True
+st.subheader("📋 Before Generating the Prediction")
+
+st.info("""
+Please ensure that:
+
+- All four sections have been completed.
+- The information entered is accurate.
+- The student's details have been reviewed before generating the prediction.
+""")
+
+confirm = st.checkbox(
+    "✅ I confirm that all information entered is complete and accurate."
 )
 
+predict = False
+
+if confirm:
+
+    predict = st.button(
+        "🎓 Predict Grade",
+        use_container_width=True
+    )
+
+else:
+
+    st.warning(
+        "Please review all sections before generating the prediction."
+    )
 
 
 if predict:
 
-    # Convert user-friendly inputs
+   
+    # Convert User-Friendly Inputs into Model Values
+
 
     # Gender
     sex = "M" if sex == "Male" else "F"
@@ -497,6 +545,8 @@ if predict:
 
     Total_Alcohol = dalc + walc
 
+     # Create Input DataFrame for Prediction
+
     input_data = pd.DataFrame({
 
         "age": [age],
@@ -534,12 +584,18 @@ if predict:
 
         "Total_Alcohol": [Total_Alcohol]
 
-    })
+    }) 
+
+    # Apply One-Hot Encoding
+
 
     input_data = pd.get_dummies(
         input_data,
         drop_first=True
     )  
+
+    # Align Features with Training Dataset
+
 
     input_data = input_data.reindex(
         columns=feature_names,
@@ -553,46 +609,62 @@ if predict:
         2: "C",
         3: "D"
     }
+# Generate Grade Prediction
 
     predicted_grade = grade_map[prediction[0]]
 
 
 
     st.divider()
+    # Display Prediction Result
 
-    st.subheader("📊 Prediction Result")
+    st.subheader("📊 Student Performance Prediction")
 
     if predicted_grade == "A":
-
         st.success(f"🎉 Predicted Grade: {predicted_grade}")
 
-        st.write(
-            "The student is predicted to achieve excellent academic performance."
-        )
+        st.markdown("""
+    **Performance Level:** Excellent
 
+    **Summary:**  
+    The student is predicted to perform at an excellent academic level based on the information provided.
+
+    **Recommendation:**  
+    Continue encouraging the student's current study habits and academic engagement to maintain strong performance.
+    """)
     elif predicted_grade == "B":
-
         st.info(f"👍 Predicted Grade: {predicted_grade}")
 
-        st.write(
-            "The student is predicted to achieve good academic performance."
-        )
+        st.markdown("""
+    **Performance Level:** Good
 
+    **Summary:**  
+    The student is predicted to achieve good academic performance.
+
+    **Recommendation:**  
+    Continue monitoring the student's progress and encourage consistent revision to further improve performance.
+    """)
     elif predicted_grade == "C":
-
         st.warning(f"📚 Predicted Grade: {predicted_grade}")
 
-        st.write(
-            "The student may require additional support to improve performance."
-        )
+        st.markdown("""
+    **Performance Level:** Moderate Risk
 
+    **Summary:**  
+    The student may require additional academic support to improve performance.
+
+    **Recommendation:**  
+    Provide additional guidance, encourage regular study habits, and monitor academic progress more closely.
+    """)
     else:
-
         st.error(f"⚠️ Predicted Grade: {predicted_grade}")
 
-        st.write(
-            "The student is predicted to be at academic risk and may require intervention."
-        )
+        st.markdown("""
+    **Performance Level:** High Risk
 
+    **Summary:**  
+    The student is predicted to be at higher academic risk based on the information provided.
 
-
+    **Recommendation:**  
+    Early intervention, closer teacher supervision, and additional academic support are recommended.
+    """)
